@@ -1,0 +1,4 @@
+tmp/
+docker/
+**.sqlite
+**.sqlite3
