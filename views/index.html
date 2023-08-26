@@ -1,11 +1,12 @@
 {{template "partials/header" . }}
 Hello, {{ .User.Email }}
-<div class="flex justify-center" x-data="{ 'showModal': false }" >
-    <div id="url-list">
+<div class="flex justify-center" x-data="{ 'showModal': '' }" hx-on="keydown: showModal = 'help'" >
+    <div>
         <div class="flex justify-between m-2">
             <div>Shortened URLs</div>
             <div>
-                <button @click="showModal = true" class="bg-blue-500 hover:bg-blue-700 border-blue-500 hover:border-teal-700 text-sm border-4 text-white py-2 px-4 rounded">Add Form</button>
+                <button @click="showModal = 'add'; $nextTick(() => { $refs.url.focus(); });" class="bg-blue-500 hover:bg-blue-700 border-blue-500 hover:border-teal-700 text-sm border-4 text-white py-2 px-4 rounded">Add Form</button>
+                <button hx-trigger="keyup[shiftKey&&key=='H'] from:body" hx-on:*="showModal = 'help'" class="bg-blue-500 hover:bg-blue-700 border-blue-500 hover:border-teal-700 text-sm border-4 text-white py-2 px-4 rounded">?</button>
             </div>
         </div>
     <table class="table-fixed">
@@ -16,21 +17,21 @@ Hello, {{ .User.Email }}
           <th class="px-5 py-4">Actions</th>
         </tr>
       </thead>
-      <div>
+      <tbody id="url-list">
         {{ range .Domains }}
         {{ block "url-list-item" . }}
         <tr hx-target="this" hx-swap="outerHTML"  class="border-b dark:border-neutral-500"> 
-                <td class="px-5 py-4"><a href="{{ .Id }}" class="text-blue-500">Short URL</a></td>
+                <td class="px-5 py-4"><a href="{{ .ParseId }}" class="text-blue-500">Short URL</a></td>
                 <td class="px-5 py-4">{{ .FullURL }}</td>
-                <td class="px-5 py-4"><i hx-delete="/delete-url/{{ .Id }}" class="fas fa-trash text-red-500"></i></td>
+                <td class="px-5 py-4"><i hx-delete="/delete-url/{{ .ParseId }}" class="fas fa-trash text-red-500"></i></td>
             </tr>
         {{ end }}
         {{ end }}
       </tbody>
     </table>
     </div>
-    <div class="overflow-auto" style="background-color: rgba(0,0,0,0.5)" x-show="showModal" :class="{ 'absolute inset-0 z-10 flex items-center justify-center': showModal }">
-        <div @click.away="showModal = false" x-show="showModal" id="add-form" class="bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg py-4 text-left px-6">
+    <div @click.away="showModal = ''" class="overflow-auto" style="background-color: rgba(0,0,0,0.5)" x-show="showModal != ''" :class="{ 'absolute inset-0 z-10 flex items-center justify-center': showModal != '' }">
+        <div @click.away="showModal = ''" x-show="showModal == 'add'" id="add-form" class="bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg py-4 text-left px-6">
         <form
             class="w-full max-w-sm"
             hx-post="/add-url"
@@ -39,12 +40,17 @@ Hello, {{ .User.Email }}
             hx-on::after-request='document.getElementById("url").value = ""'
         >
         <div class="flex items-center border-b border-blue-500 py-2">
-          <input class="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none" type="text" placeholder="URL to be shortened" name="url" id="url"/>
+          <input class="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none" type="text" placeholder="URL to be shortened" name="url" id="url" x-ref="url" />
           <button class="flex-shrink-0 bg-blue-500 hover:bg-blue-700 border-blue-500 hover:border-teal-700 text-sm border-4 text-white py-1 px-2 rounded" type="submit">Submit</button>
         </div>
         </form>
     </div>
+    <div @click.away="showModal = ''" style="background-color: rgba(0,0,0,0.5)" x-show="showModal == 'help'" class="bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg py-4 text-left px-6 min-h-600">
+        HELP SCREEN
     </div>
+    </div>
+
+  
 </div>
 
 {{template "partials/footer" .}}

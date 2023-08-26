@@ -3,7 +3,8 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"strings"
+	// "fmt"
 	htmltmpl "html/template"
 	"log"
 	"net/http"
@@ -22,14 +23,14 @@ import (
 	fiberadapter "github.com/awslabs/aws-lambda-go-api-proxy/fiber"
 	"github.com/gofiber/fiber/v2"
 
-    fiberdb "github.com/gofiber/storage/dynamodb/v2"
 	fibersession "github.com/gofiber/fiber/v2/middleware/session"
-	// "time"
+	fiberdb "github.com/gofiber/storage/dynamodb/v2"
 
 	"github.com/gofiber/template/html/v2"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
@@ -38,8 +39,8 @@ var app *fiber.App
 var fiberLambda *fiberadapter.FiberLambda
 
 type ShortenedURL struct {
-    Id string `dynamodbav:"pk"`
-    Type string `dynamodbav:"sk"`
+    UserId string `dynamodbav:"pk"`
+    UrlId string `dynamodbav:"sk"`
     FullURL string `dynamodbav:"full_url" form:"url"`
 }
 
@@ -50,13 +51,12 @@ var defaultDDBOptions = func(o *dynamodb.Options) {
 }
 
 func init() {
-	log.Printf("Fiber cold start")
-    //engine := jet.New("./views", ".jet")
     engine := html.New("./views", ".html")
-    store := fiberdb.New(fiberdb.Config{
-        Endpoint: "http://localhost:8000",
-        WaitForTableCreation: aws.Bool(true),
-    })
+    fiberdbConfig := fiberdb.Config{WaitForTableCreation: aws.Bool(true),}
+    if os.Getenv("AWS_LAMBDA_RUNTIME_API") == "" {
+        fiberdbConfig.Endpoint = "http://localhost:8000"
+    }
+    store := fiberdb.New(fiberdbConfig)
 	app = fiber.New( fiber.Config{
         Views: engine,
     })
@@ -99,11 +99,8 @@ func init() {
 
 
 	app.Get("/", func(c *fiber.Ctx) error {
-        state := goth_fiber.GetState(c)
-        fmt.Println("/", "state", state)
         sess, err := goth_fiber.SessionStore.Get(c)
         sessUser := sess.Get("user")
-        fmt.Println(fmt.Sprintf("%+v", sessUser))
         user, ok := sessUser.(goth.User)
         if !ok {
             user = goth.User{
@@ -113,14 +110,27 @@ func init() {
         domains := []ShortenedURL{}
         cfg, err := config.LoadDefaultConfig(context.TODO())
         if err != nil {
-            panic(err)
+            log.Println(err)
+            return c.SendString("sucks to suck")
         }
 
         svc := dynamodb.NewFromConfig(cfg, defaultDDBOptions)
+        keyCond := expression.KeyAnd(
+            expression.Key("pk").Equal(expression.Value(user.UserID)),
+            expression.Key("sk").BeginsWith("id#"),
+        )
+        expr, err := expression.NewBuilder().WithKeyCondition(keyCond).Build()
+        response, err := svc.Query(context.TODO(), &dynamodb.QueryInput{
+            TableName: aws.String("test"),
+            KeyConditionExpression: expr.KeyCondition(),
+            ExpressionAttributeNames:  expr.Names(),
+            ExpressionAttributeValues: expr.Values(),
+        })
 
-        response, err := svc.Scan(context.TODO(), &dynamodb.ScanInput{TableName: aws.String("test")})
+        // response, err := svc.Scan(context.TODO(), &dynamodb.ScanInput{TableName: aws.String("test")})
         if err != nil {
-            panic(err)
+            log.Println(err)
+            return c.SendString("sucks to suck")
         }
         err = attributevalue.UnmarshalListOfMaps(response.Items, &domains)
         if err != nil {
@@ -133,6 +143,12 @@ func init() {
 	})
 
     app.Get("/:id", func(c *fiber.Ctx) error {
+        sess, err := goth_fiber.SessionStore.Get(c)
+        sessUser := sess.Get("user")
+        user, ok := sessUser.(goth.User)
+        if !ok {
+            return c.SendString("sucks to suck")
+        }
         id := c.Params("id")
 
         cfg, err := config.LoadDefaultConfig(context.TODO())
@@ -142,8 +158,8 @@ func init() {
 
         svc := dynamodb.NewFromConfig(cfg, defaultDDBOptions)
         domain := ShortenedURL{}
-        pk, _ := attributevalue.Marshal(id)
-        sk, _ := attributevalue.Marshal("url")
+        pk, _ := attributevalue.Marshal(user.UserID)
+        sk, _ := attributevalue.Marshal("id#" + id)
         res, err := svc.GetItem(context.TODO(), &dynamodb.GetItemInput{
             TableName: aws.String("test"),
             Key: map[string]types.AttributeValue{
@@ -155,12 +171,18 @@ func init() {
         return c.Redirect(domain.FullURL, http.StatusMovedPermanently)
     })
     app.Post("/add-url", func(c *fiber.Ctx) error {
+        sess, err := goth_fiber.SessionStore.Get(c)
+        sessUser := sess.Get("user")
+        user, ok := sessUser.(goth.User)
+        if !ok {
+            return c.SendStatus(http.StatusUnauthorized)
+        }
         sURL := new(ShortenedURL)
         if err := c.BodyParser(sURL); err != nil{
             return err
         }
-        sURL.Type = "url"
-        sURL.Id = generateId()
+        sURL.UserId = user.UserID
+        sURL.UrlId = "id#" + generateId()
         cfg, err := config.LoadDefaultConfig(context.TODO())
         if err != nil {
             panic(err)
@@ -180,6 +202,12 @@ func init() {
     })
 
     app.Delete("/delete-url/:id", func(c *fiber.Ctx) error {
+        sess, err := goth_fiber.SessionStore.Get(c)
+        sessUser := sess.Get("user")
+        user, ok := sessUser.(goth.User)
+        if !ok {
+            return c.SendStatus(http.StatusUnauthorized)
+        }
         id := c.Params("id")
 
         cfg, err := config.LoadDefaultConfig(context.TODO())
@@ -188,15 +216,20 @@ func init() {
         }
 
         svc := dynamodb.NewFromConfig(cfg, defaultDDBOptions)
-        pk, _ := attributevalue.Marshal(id)
-        sk, _ := attributevalue.Marshal("url")
-        svc.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
+        pk, _ := attributevalue.Marshal(user.UserID)
+        sk, _ := attributevalue.Marshal("id#" + id)
+        _, err = svc.DeleteItem(context.TODO(), &dynamodb.DeleteItemInput{
             TableName: aws.String("test"),
             Key: map[string]types.AttributeValue{
                 "pk": pk,
                 "sk": sk,
             },
         })
+
+        if err != nil {
+            return c.SendStatus(http.StatusInternalServerError)
+        }
+
         return c.SendString("")
     })
 
@@ -220,4 +253,12 @@ func main() {
 
 func generateId() string {
     return shortid.MustGenerate()
+}
+
+func (su *ShortenedURL) ParseId() string {
+    s := strings.Split(su.UrlId, "#")
+    if len(s) > 1 {
+        return s[1]
+    }
+    return s[0]
 }
