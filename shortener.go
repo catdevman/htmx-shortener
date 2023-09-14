@@ -45,7 +45,7 @@ type ShortenedURL struct {
 
 var defaultDDBOptions = func(o *dynamodb.Options) {
     if os.Getenv("AWS_LAMBDA_RUNTIME_API") == "" {
-        o.EndpointResolver = dynamodb.EndpointResolverFromURL("http://localhost:8000")
+        o.EndpointResolver = dynamodb.EndpointResolverFromURL("http://127.0.0.1:8000")
     }
 }
 
@@ -53,10 +53,10 @@ func init() {
     engine := html.New("./views", ".html")
     fiberdbConfig := fiberdb.Config{WaitForTableCreation: aws.Bool(true),}
     if os.Getenv("AWS_LAMBDA_RUNTIME_API") == "" {
-        fiberdbConfig.Endpoint = "http://localhost:8000"
+        fiberdbConfig.Endpoint = "http://127.0.0.1:8000"
     }
     store := fiberdb.New(fiberdbConfig)
-	app = fiber.New( fiber.Config{
+	app = fiber.New(fiber.Config{
         Views: engine,
     })
     sessConfig := fibersession.Config{
