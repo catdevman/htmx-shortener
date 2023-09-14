@@ -9,6 +9,8 @@
   - `docker compose up`
 - Create test DDB table
   - ` awslocal dynamodb create-table --table-name test --attribute-definitions AttributeName=pk,AttributeType=S AttributeName=sk,AttributeType=S --key-schema AttributeName=pk,KeyType=HASH AttributeName=sk,KeyType=RANGE --billing-mode PAY_PER_REQUEST`
+- Environment
+  - Set OAUTH_KEY, OAUTH_SECRET, OAUTH_DOMAIN for google login
 - Run App
  - air (optional, this should hot rebuild for view and code changes but it wasn't always working perfectly)
  - go run ./ (from the root of the project)
