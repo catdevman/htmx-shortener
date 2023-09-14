@@ -6,7 +6,7 @@
 
 # Setup
 - Get DDB running locally with localstack
-  - `docker run --rm -it -e SERVICES=dynamodb -p 4566:4566 -p 4510-4559:4510-4559 localstack/localstack`
+  - `docker compose up`
 - Create test DDB table
   - ` awslocal dynamodb create-table --table-name test --attribute-definitions AttributeName=pk,AttributeType=S AttributeName=sk,AttributeType=S --key-schema AttributeName=pk,KeyType=HASH AttributeName=sk,KeyType=RANGE --billing-mode PAY_PER_REQUEST`
 - Run App
