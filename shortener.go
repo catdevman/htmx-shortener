@@ -4,7 +4,6 @@ package main
 import (
 	"context"
 	"strings"
-	// "fmt"
 	htmltmpl "html/template"
 	"log"
 	"net/http"
@@ -70,7 +69,7 @@ func init() {
     goth_fiber.SessionStore = sessions
 
     goth.UseProviders(
-		google.New(os.Getenv("OAUTH_KEY"), os.Getenv("OAUTH_SECRET"), "http://127.0.0.1:8989/auth/callback/google"),
+        google.New(os.Getenv("OAUTH_KEY"), os.Getenv("OAUTH_SECRET"), os.Getenv("OAUTH_DOMAIN")),
 	)
     app.Get("/login/:provider", goth_fiber.BeginAuthHandler)
     app.Get("/login", goth_fiber.BeginAuthHandler)
@@ -130,7 +129,7 @@ func init() {
         // response, err := svc.Scan(context.TODO(), &dynamodb.ScanInput{TableName: aws.String("test")})
         if err != nil {
             log.Println(err)
-            return c.SendString("sucks to suck")
+            return c.Render("login", fiber.Map{}, "layouts/main")
         }
         err = attributevalue.UnmarshalListOfMaps(response.Items, &domains)
         if err != nil {
@@ -247,7 +246,7 @@ func main() {
     if os.Getenv("AWS_LAMBDA_RUNTIME_API") != "" {
     	lambda.Start(Handler)
     } else {
-        log.Fatal(app.Listen(":8989"))
+        log.Fatal(app.Listen(":3000"))
     }
 }
 
