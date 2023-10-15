@@ -11,9 +11,7 @@
 
 - Get DDB running locally with localstack
 ```sh { name=localstack background=true }
-
 $ docker compose up -d
-
 ```
 
 - Create test DDB table
@@ -26,10 +24,16 @@ $ awslocal --endpoint-url=http://127.0.0.1:8000 dynamodb create-table --table-na
 
 - optional, this should hot rebuild for view and code changes but it wasn't always working perfectly
 ```sh { name=air background=true }
-air
+$ export OAUTH_KEY=set_key
+$ export OAUTH_SECRET=set_secret
+$ export OAUTH_DOMAIN=set_domain
+$ air
 ```
 - Use the go cli to run the project 
 ```sh { name=run }
+$ export OAUTH_KEY=set_key
+$ export OAUTH_SECRET=set_secret
+$ export OAUTH_DOMAIN=set_domain
 $ go run ./
 ```
 # Using

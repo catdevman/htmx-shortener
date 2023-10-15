@@ -93,7 +93,7 @@ func init() {
 			log.Println(err)
 		}
 
-		return ctx.SendString("logout")
+		return ctx.Redirect("/", http.StatusTemporaryRedirect)
 	})
 
 
@@ -146,7 +146,7 @@ func init() {
         sessUser := sess.Get("user")
         user, ok := sessUser.(goth.User)
         if !ok {
-            return c.SendString("sucks to suck")
+            return c.SendString("Please login before using shortened urls")
         }
         id := c.Params("id")
 
@@ -246,7 +246,7 @@ func main() {
     if os.Getenv("AWS_LAMBDA_RUNTIME_API") != "" {
     	lambda.Start(Handler)
     } else {
-        log.Fatal(app.Listen(":3000"))
+        log.Fatal(app.Listen(":8989"))
     }
 }
 
