@@ -1,5 +1,14 @@
 {{template "partials/header" . }}
+{{ if .LoggedIn }}
+<div style="margin-top: 10px;">
 Hello, {{ .User.Email }}
+    <a
+        style="background: #4285F4; padding: 10px; text-align: center; border-radius: 5px; color: white; font-weight: bold; line-height: 25px; max-width: 250px"
+        href="/logout/google">
+        Logout
+    </a>
+</div>
+{{ end }}
 <div class="flex justify-center min-w-1/2" >
     <div class="min-w-[500px]">
         <div class="flex justify-between">

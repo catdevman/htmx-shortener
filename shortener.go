@@ -120,7 +120,7 @@ func init() {
         )
         expr, err := expression.NewBuilder().WithKeyCondition(keyCond).Build()
         response, err := svc.Query(context.TODO(), &dynamodb.QueryInput{
-            TableName: aws.String("test"),
+            TableName: aws.String(os.Getenv("DDB_TABLE")),
             KeyConditionExpression: expr.KeyCondition(),
             ExpressionAttributeNames:  expr.Names(),
             ExpressionAttributeValues: expr.Values(),
@@ -138,6 +138,7 @@ func init() {
         return c.Render("index", fiber.Map{
             "User": user,
             "Domains": domains,
+            "LoggedIn": true,
         }, "layouts/main")
 	})
 

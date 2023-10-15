@@ -27,6 +27,7 @@ $ awslocal --endpoint-url=http://127.0.0.1:8000 dynamodb create-table --table-na
 $ export OAUTH_KEY=set_key
 $ export OAUTH_SECRET=set_secret
 $ export OAUTH_DOMAIN=set_domain
+$ export DDB_TABLE=test
 $ air
 ```
 - Use the go cli to run the project 
@@ -34,6 +35,7 @@ $ air
 $ export OAUTH_KEY=set_key
 $ export OAUTH_SECRET=set_secret
 $ export OAUTH_DOMAIN=set_domain
+$ export DDB_TABLE=test
 $ go run ./
 ```
 # Using
