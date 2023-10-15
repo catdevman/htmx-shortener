@@ -1,4 +1,3 @@
-// main.go
 package main
 
 import (
@@ -46,6 +45,7 @@ type ShortenedURL struct {
 var defaultDDBOptions = func(o *dynamodb.Options) {
     if os.Getenv("AWS_LAMBDA_RUNTIME_API") == "" {
         o.BaseEndpoint = aws.String("https://127.0.0.1:8000")
+        o.EndpointResolver = dynamodb.EndpointResolverFromURL("http://127.0.0.1:8000")
     }
 }
 
@@ -110,7 +110,7 @@ func init() {
         cfg, err := config.LoadDefaultConfig(context.TODO())
         if err != nil {
             log.Println(err)
-            return c.SendString("sucks to suck")
+            return c.SendString("sucks to suck; could not setup aws configuration")
         }
 
         svc := dynamodb.NewFromConfig(cfg, defaultDDBOptions)
@@ -126,7 +126,6 @@ func init() {
             ExpressionAttributeValues: expr.Values(),
         })
 
-        // response, err := svc.Scan(context.TODO(), &dynamodb.ScanInput{TableName: aws.String("test")})
         if err != nil {
             log.Println(err)
             return c.Render("login", fiber.Map{}, "layouts/main")
