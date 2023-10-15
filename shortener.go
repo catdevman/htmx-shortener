@@ -45,7 +45,7 @@ type ShortenedURL struct {
 
 var defaultDDBOptions = func(o *dynamodb.Options) {
     if os.Getenv("AWS_LAMBDA_RUNTIME_API") == "" {
-        o.EndpointResolver = dynamodb.EndpointResolverFromURL("http://127.0.0.1:8000")
+        o.BaseEndpoint = aws.String("https://127.0.0.1:8000")
     }
 }
 
