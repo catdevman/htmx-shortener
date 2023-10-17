@@ -18,23 +18,28 @@ Globals:
 
 Resources:
   ShortenerFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function 
     Properties:
       CodeUri: shortener/
       Handler: bootstrap 
       Runtime: provided.al2
       Events:
         CatchAll:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api 
           Properties:
             Path: /{proxy+}
             Method: ANY
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Root:
+          Type: Api 
+          Properties:
+            Path: /
+            Method: ANY
+      Environment: 
         Variables:
           DDB_TABLE: !Ref ShortenerTable
           OAUTH_KEY: !Ref OAUTHKEY
           OAUTH_SECRET: !Ref OAUTHSECRET
-          OAUTH_DOMAIN: "https://0cfxckhrtk.execute-api.us-east-2.amazonaws.com/Prod/login/google"
+          OAUTH_DOMAIN: "https://shortener.lucaspearson.com/auth/callback/google"
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref ShortenerTable
