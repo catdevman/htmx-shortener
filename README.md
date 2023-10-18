@@ -28,10 +28,11 @@ $ export OAUTH_KEY=set_key
 $ export OAUTH_SECRET=set_secret
 $ export OAUTH_DOMAIN=set_domain
 $ export DDB_TABLE=test
+$ cd shortener
 $ air
 ```
 - Use the go cli to run the project 
-```sh { name=run }
+```sh { name=go }
 $ export OAUTH_KEY=set_key
 $ export OAUTH_SECRET=set_secret
 $ export OAUTH_DOMAIN=set_domain
@@ -39,10 +40,14 @@ $ export DDB_TABLE=test
 $ cd shortener
 $ go run ./
 ```
+
+```sh {name=ngrok }
+$ ngrok start --all
+```
 # Using
 
-- Go to http://127.0.0.1:8989/login/google to login
-- After login with Google it should redirect you to
+- Go to http://127.0.0.1:8989/ to login
+- After login with Google it should redirect you to the home screen
 
 # TODOs
 

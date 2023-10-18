@@ -20,7 +20,7 @@ Hello, {{ .User.Email }}
                     class="bg-blue-500 hover:bg-blue-700 border-blue-500 hover:border-teal-700 text-sm border-4 text-white py-2 px-4 rounded"
                     >Add Form</button>
                 <button
-                    title="alt + / to open help"
+                    title="ctrl + / to open help"
                     @click="showModal = 'help'" class="bg-blue-500 hover:bg-blue-700 border-blue-500 hover:border-teal-700 text-sm border-4 text-white py-2 px-4 rounded">?</button>
             </div>
         </div>
@@ -63,7 +63,7 @@ Hello, {{ .User.Email }}
     <div @click.away="showModal = ''" style="background-color: rgba(255,255,255,0.75)" x-show="showModal == 'help'" class="w-11/12 md:max-w-md mx-auto rounded shadow-lg py-4 text-left px-6 min-h-600">
         HELP SCREEN - press esc to close
         <br />
-        Show Help Screen - alt + /
+        Show Help Screen - ctrl + /
         <br />
         Show URL Form - shift + enter
     </div>
