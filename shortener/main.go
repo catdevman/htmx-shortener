@@ -253,7 +253,10 @@ func init() {
 
 // Handler will deal with Fiber working with Lambda
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-    //TODO: I believe I found a bug with the fiber lambda proxy when using html instead of json
+    //TODO: I believe I found a bug with the fiber lambda proxy when using html instead of json or plain text
+    // Issue appears to be with getting the body decoded here (https://github.com/awslabs/aws-lambda-go-api-proxy/blob/master/fiber/adapter.go#L109)
+    // and of course this gobbles up the error so I don't know what is actually wrong
+
     //return fiberLambda.Proxy(req)
     httpReq, err := fiberLambda.ProxyEventToHTTPRequest(req)
     if err != nil {
