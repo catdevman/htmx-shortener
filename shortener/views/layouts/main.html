@@ -13,7 +13,7 @@
     </head>
     <body x-data="{showModal: ''}"
         @keyup.escape="showModal = ''"
-        @keyup.ctrl.slash="showModal = 'help'"
+        @keyup.ctrl.q="showModal = 'help'"
         @keyup.shift.enter="showModal = 'add'; $nextTick(() => { $refs.url.focus(); });">
       {{ embed }}
     </body>

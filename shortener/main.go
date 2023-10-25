@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	htmltmpl "html/template"
-	// "io"
 	"log"
 	"net/http"
 	"os"
