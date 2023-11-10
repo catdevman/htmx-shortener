@@ -2,11 +2,11 @@
 {{ if .LoggedIn }}
 <div style="margin-top: 10px;">
 Hello, {{ .User.Email }}
-    <a
-        style="background: #4285F4; padding: 10px; text-align: center; border-radius: 5px; color: white; font-weight: bold; line-height: 25px; max-width: 250px"
+(<a
+        style="color: blue"
         href="/logout/google">
         Logout
-    </a>
+    </a>)
 </div>
 {{ end }}
 <div class="flex justify-center min-w-1/2" >
@@ -20,8 +20,9 @@ Hello, {{ .User.Email }}
                     class="bg-blue-500 hover:bg-blue-700 border-blue-500 hover:border-teal-700 text-sm border-4 text-white py-2 px-4 rounded"
                     >Add Form</button>
                 <button
-                    title="alt + / to open help"
-                    @click="showModal = 'help'" class="bg-blue-500 hover:bg-blue-700 border-blue-500 hover:border-teal-700 text-sm border-4 text-white py-2 px-4 rounded">?</button>
+                    title="ctrl + q to open help"
+                    @click="showModal = 'help'"
+                    class="fa fa-question bg-blue-500 hover:bg-blue-700 border-blue-500 hover:border-teal-700 text-sm border-4 text-white py-2 px-4 rounded"></button>
             </div>
         </div>
     <table class="table-fixed">
@@ -38,14 +39,18 @@ Hello, {{ .User.Email }}
             <tr hx-target="this" hx-swap="outerHTML"  class="border-b dark:border-neutral-500"> 
                     <td class="px-5 py-4"><a href="{{ .ParseId }}" class="text-blue-500">Short URL</a></td>
                     <td class="px-5 py-4">{{ .FullURL }}</td>
-                    <td class="px-5 py-4"><i hx-delete="/delete-url/{{ .ParseId }}" class="fas fa-trash text-red-500"></i></td>
+                        <td class="px-5 py-4">
+                            <button style="min-width: 50px" hx-delete="/delete-url/{{ .ParseId }}" hx-confirm="Are you sure?" tabindex="0">
+                                <i class="fas fa-trash text-red-500"></i>
+                            </button>
+                        </td>
             </tr>
             {{ end }}
         {{ end }}
       </tbody>
     </table>
     </div>
-    <div @click.away="showModal = ''" class="overflow-auto" style="background-color: rgba(0,0,0,0.5)" x-show="showModal != ''" :class="{ 'absolute inset-0 z-10 flex items-center justify-center': showModal != '' }">
+    <div @click.away="showModal = ''" class="overflow-auto" style="display:none; background-color: rgba(0,0,0,0.5)" x-show="showModal != ''" :class="{ 'absolute inset-0 z-10 flex items-center justify-center': showModal != '' }">
         <div @click.away="showModal = ''" x-show="showModal == 'add'" id="add-form" class="bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg py-4 text-left px-6">
         <form
             class="w-full max-w-sm"
@@ -60,10 +65,10 @@ Hello, {{ .User.Email }}
         </div>
         </form>
     </div>
-    <div @click.away="showModal = ''" style="background-color: rgba(0,0,0,0.5)" x-show="showModal == 'help'" class="bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg py-4 text-left px-6 min-h-600">
+    <div @click.away="showModal = ''" style="background-color: rgba(255,255,255,0.75)" x-show="showModal == 'help'" class="w-11/12 md:max-w-md mx-auto rounded shadow-lg py-4 text-left px-6 min-h-600">
         HELP SCREEN - press esc to close
         <br />
-        Show Help Screen - alt + /
+        Show Help Screen - ctrl + q
         <br />
         Show URL Form - shift + enter
     </div>

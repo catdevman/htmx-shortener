@@ -1,11 +1,11 @@
-root = "."
+root = "./shortener"
 testdata_dir = "testdata"
-tmp_dir = "tmp"
+tmp_dir = "./tmp"
 
 [build]
   args_bin = []
-  bin = "./tmp/main"
-  cmd = "go build -o ./tmp/main ."
+  bin = "./main"
+  cmd = "cd shortener && go build -o main ./"
   delay = 0
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
@@ -13,7 +13,7 @@ tmp_dir = "tmp"
   exclude_unchanged = false
   follow_symlink = false
   full_bin = ""
-  include_dir = ["src", "views"]
+  include_dir = ["shortener/views"]
   include_ext = ["go", "tpl", "tmpl", "html", "jet"]
   include_file = []
   kill_delay = "0s"
